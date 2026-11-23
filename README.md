@@ -129,7 +129,7 @@
 
     <script>
         // ================= CẤU HÌNH =================
-        const ADMIN_PASSWORD = "quatvie12"; // 🔑 Mật khẩu quản trị — đổi ở đây!
+        const ADMIN_PASSWORD = "hoahoc2026"; // 🔑 Mật khẩu quản trị — đổi ở đây!
         let isAdmin = false;
         let currentGrade = "all";
 
