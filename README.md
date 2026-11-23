@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 Tài Liệu Hóa Học — Lớp 6 đến 12</title>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <link href="[https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css](https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css)" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F766E',
+                        secondary: '#2563EB',
+                        admin: '#DC2626',
+                        light: '#F0FDFA',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .gradient-bg { background: linear-gradient(135deg, #0F766E 0%, #2563EB 100%); }
+            .card-shadow { box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Màn hình Đăng Nhập Quản Trị (Ẩn ban đầu) -->
+    <div id="adminLoginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h2 class="text-xl font-bold text-center mb-4">🔐 Đăng Nhập Quản Trị</h2>
+            <div class="space-y-3">
+                <input type="password" id="adminPasswordInput" placeholder="Nhập mật khẩu quản trị..."
+                    class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none">
+                <button onclick="checkAdminPassword()" class="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/90">
+                    <i class="fa fa-sign-in mr-2"></i> Đăng Nhập
+                </button>
+                <button onclick="closeAdminLogin()" class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300">
+                    Đóng
+                </button>
+                <p id="adminLoginError" class="text-red-500 text-sm text-center hidden">❌ Mật khẩu sai!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Khu vực Chỉnh Sửa (Chỉ hiện khi là quản trị) -->
+    <div id="adminPanel" class="bg-admin/10 border-b-4 border-admin py-3 hidden">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-admin"><i class="fa fa-cog mr-2"></i> CHẾ ĐỘ QUẢN TRỊ — Bạn có thể chỉnh sửa nội dung</h3>
+                <button onclick="logoutAdmin()" class="bg-admin text-white px-3 py-1 rounded text-sm hover:bg-admin/90">
+                    <i class="fa fa-sign-out mr-1"></i> Thoát
+                </button>
+            </div>
+            
+            <!-- Thêm bài mới -->
+            <div class="bg-white p-4 rounded-lg mb-3">
+                <h4 class="font-bold mb-2">➕ Thêm Bài Mới</h4>
+                <select id="newGradeSelect" class="w-full p-2 border rounded mb-2">
+                    <option value="lop6">Lớp 6</option>
+                    <option value="lop7">Lớp 7</option>
+                    <option value="lop8">Lớp 8</option>
+                    <option value="lop9">Lớp 9</option>
+                    <option value="lop10">Lớp 10</option>
+                    <option value="lop11">Lớp 11</option>
+                    <option value="lop12">Lớp 12</option>
+                </select>
+                <input type="text" id="newTitleInput" placeholder="Tiêu đề bài học..." 
+                    class="w-full p-2 border rounded mb-2">
+                <textarea id="newContentInput" rows="6" placeholder="Nội dung bài học..."
+                    class="w-full p-2 border rounded mb-2 resize-none"></textarea>
+                <button onclick="addNewLesson()" class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90">
+                    <i class="fa fa-plus mr-1"></i> Lưu Bài Mới
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="gradient-bg text-white py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold">📚 Tài Liệu Hóa Học Toàn Tập</h1>
+                    <p class="text-teal-100">Từ Lớp 6 đến Lớp 12 — Tổng hợp kiến thức & bài tập</p>
+                </div>
+                <button id="adminLoginBtn" onclick="openAdminLogin()" 
+                    class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm">
+                    <i class="fa fa-lock mr-1"></i> Quản Trị
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Chọn Lớp -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">📖 Chọn Lớp</h2>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="selectGrade('all')" class="grade-btn px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700">Tất Cả</button>
+                <button onclick="selectGrade('lop6')" class="grade-btn px-4 py-2 bg-teal-600 text-white rounded-full hover:bg-teal-700">Lớp 6</button>
+                <button onclick="selectGrade('lop7')" class="grade-btn px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700">Lớp 7</button>
+                <button onclick="selectGrade('lop8')" class="grade-btn px-4 py-2 bg-lime-600 text-white rounded-full hover:bg-lime-700">Lớp 8</button>
+                <button onclick="selectGrade('lop9')" class="grade-btn px-4 py-2 bg-amber-600 text-white rounded-full hover:bg-amber-700">Lớp 9</button>
+                <button onclick="selectGrade('lop10')" class="grade-btn px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">Lớp 10</button>
+                <button onclick="selectGrade('lop11')" class="grade-btn px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700">Lớp 11</button>
+                <button onclick="selectGrade('lop12')" class="grade-btn px-4 py-2 bg-rose-600 text-white rounded-full hover:bg-rose-700">Lớp 12</button>
+            </div>
+        </section>
+
+        <!-- Danh Sách Bài Học -->
+        <section id="lessonsSection">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">📝 Danh Sách Bài Học</h2>
+            <div id="lessonsList" class="space-y-4">
+                <!-- Nội dung sẽ được hiển thị ở đây -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>📚 Tài Liệu Hóa Học — Lớp 6 đến 12</p>
+            <p class="text-sm text-gray-500 mt-1">Chỉ quản trị viên mới có quyền chỉnh sửa nội dung</p>
+        </div>
+    </footer>
+
+    <script>
+        // ================= CẤU HÌNH =================
+        const ADMIN_PASSWORD = "hoahoc2026"; // 🔑 Mật khẩu quản trị — đổi ở đây!
+        let isAdmin = false;
+        let currentGrade = "all";
+
+        // ================= DỮ LIỆU BÀI HỌC MẪU =================
+        let lessons = [
+            { id: 1, grade: "lop6", title: "Chương 1: Chất và sự biến đổi của chất", content: "- Chất có ở khắp mọi nơi xung quanh chúng ta.\n- Chất có ba trạng thái chính: rắn, lỏng, khí.\n- Sự biến đổi vật lý: Chất không thay đổi (vd: nước đá tan chảy).\n- Sự biến đổi hóa học: Tạo ra chất mới (vd: đốt gỗ thành tro)." },
+            { id: 2, grade: "lop6", title: "Chương 2: Không khí và sự cháy", content: "- Không khí hỗn hợp gồm: Nito ~78%, Oxi ~21%, các khí khác ~1%.\n- Oxi là khí cần cho sự sống và sự cháy.\n- Điều kiện để có sự cháy: Chất cháy + Oxi + Nhiệt độ đủ cao." },
+            { id: 3, grade: "lop7", title: "Chương 1: Nguyên tử và Phân tử", content: "- Nguyên tử là hạt nhỏ nhất của chất tham gia vào phản ứng hóa học.\n- Phân tử được tạo từ các nguyên tử liên kết với nhau.\n- Định luật bảo toàn khối lượng: Tổng khối lượng các chất bằng trước và sau phản ứng." },
+            { id: 4, grade: "lop8", title: "Chương 1: Chất điện ly và nồng độ dung dịch", content: "- Chất điện ly khi tan trong nước phân ly thành ion dương và ion âm.\n- Nồng độ phần trăm: C% = (mchất tan / mdung dịch) × 100%\n- Nồng độ mol: CM = nchất tan / Vdung dịch (tính bằng lít)" },
+            { id: 5, grade: "lop9", title: "Chương 1: Các loại hợp chất vô cơ", content: "- Oxit: Hợp chất gồm hai nguyên tố, một là oxi.\n  + Oxit axit: phản ứng với bazơ tạo muối và nước.\n  + Oxit bazơ: phản ứng với axit tạo muối và nước.\n- Axit: dung dịch axit làm quỳ tím hóa đỏ.\n- Bazơ: dung dịch bazơ làm quỳ tím hóa xanh.\n- Muối: tạo bởi cation kim loại và anion axit." },
+            { id: 6, grade: "lop10", title: "Chương 1: Nguyên Tố Bảng Tuần Hoàn", content: "- Bảng tuần hoàn sắp xếp các nguyên tố theo chiều tăng của điện tích hạt nhân.\n- Chu kỳ: Các hàng ngang, bằng số lớp electron.\n- Nhóm: Các cột dọc, bằng số electron lớp ngoài cùng (nhóm A).\n- Quy luật biến đổi tính kim loại, phi kim theo chu kỳ và nhóm." },
+            { id: 7, grade: "lop11", title: "Chương 1: Đại Cương Hóa Học Hữu Cơ", content: "- Hợp chất hữu cơ là hợp chất chứa cacbon (trừ một số ngoại lệ như CO, CO2, muối cacbonat).\n- Đặc điểm liên kết trong hợp chất hữu cơ: chủ yếu liên kết cộng hóa trị.\n- Đồng phân: các chất có cùng công thức phân tử nhưng công thức cấu tạo khác nhau → tính chất khác nhau." },
+            { id: 8, grade: "lop12", title: "Chương 1: Tinh Thể Điện Ly và Dung Dịch Chất Điện Ly", content: "- Tinh thể điện ly khi tan trong nước hoặc nóng chảy sẽ phân ly thành ion.\n- Hằng số điện ly Ka, Kb đặc trưng cho độ mạnh yếu của axit, bazơ yếu.\n- Tích số ion của nước: [H⁺][OH⁻] = 10⁻¹⁴ ở 25°C\n- pH = -log[H⁺]; pH = 7 trung tính, <7 axit, >7 bazơ." }
+        ];
+
+        // ================= LƯU DỮ LIỆU VÀO TRÌNH DUYỆT =================
+        function saveLessons() {
+            localStorage.setItem('hoahoc_lessons', JSON.stringify(lessons));
+        }
